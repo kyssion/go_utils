@@ -1,9 +1,5 @@
 package storage
 
-// though this could probably be better at keeping ids smaller, the goal of
-// this class is to keep a registry of the smallest unique integer ids
-// per-process possible
-
 import (
 	"sync"
 )
@@ -11,7 +7,7 @@ import (
 type idPool struct {
 	mtx      sync.Mutex
 	released []uint
-	max_id   uint
+	maxId    uint
 }
 
 func (p *idPool) Acquire() (id uint) {
@@ -22,8 +18,8 @@ func (p *idPool) Acquire() (id uint) {
 		p.released = p.released[:len(p.released)-1]
 		return id
 	}
-	id = p.max_id
-	p.max_id++
+	id = p.maxId
+	p.maxId++
 	return id
 }
 
