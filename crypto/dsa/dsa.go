@@ -1,4 +1,4 @@
-package crypto
+package dsa
 
 import (
 	"crypto/dsa"
@@ -80,6 +80,10 @@ func ParseDSAPrivateKeyFromFile(path string) (*dsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
+	return ParseDSAPrivateKeyWithPem(chunk)
+}
+
+func ParseDSAPrivateKeyWithPem(chunk []byte) (*dsa.PrivateKey, error) {
 	// 读取pem格式的编码文件
 	block, rest := pem.Decode(chunk)
 	if len(rest) != 0 {
@@ -94,6 +98,10 @@ func ParseDSAPublicKeyFromFile(path string) (*dsa.PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
+	return ParseDSAPublicKeyWithPem(chunk)
+}
+
+func ParseDSAPublicKeyWithPem(chunk []byte) (*dsa.PublicKey, error) {
 	// 读取pem格式的编码文件
 	block, rest := pem.Decode(chunk)
 	if len(rest) != 0 {
@@ -103,14 +111,11 @@ func ParseDSAPublicKeyFromFile(path string) (*dsa.PublicKey, error) {
 	return ParseDSAPublicKey(block.Bytes)
 }
 
-func ParseSignatureFromFile(path string) (*big.Int, *big.Int, error) {
-	chunk, err := readFile(path)
-	if err != nil {
-		return nil, nil, err
-	}
+// ParseSignature 获取asn.1 签名中的R S 信息
+func ParseSignature(sign []byte) (*big.Int, *big.Int, error) {
 	var s dsaSignature
 
-	rest, err := asn1.Unmarshal(chunk, &s)
+	rest, err := asn1.Unmarshal(sign, &s)
 	if err != nil {
 		return nil, nil, errors.New("failed to parse signature: " + err.Error())
 	}
@@ -130,6 +135,7 @@ func hash(file string) ([]byte, error) {
 	return sum[:], nil
 }
 
+// sign 使用ans.1 生成签名
 func sign(hash []byte, keyFile string) ([]byte, error) {
 	priv, err := ParseDSAPrivateKeyFromFile(keyFile)
 	if err != nil {
@@ -145,20 +151,20 @@ func sign(hash []byte, keyFile string) ([]byte, error) {
 	return asn1.Marshal(s)
 }
 
-func verify(hash []byte, keyFile string, signatureFile string) ([]byte, error) {
+func verify(hash []byte, keyFile string, sign []byte) (bool, error) {
 	pub, err := ParseDSAPublicKeyFromFile(keyFile)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	r, s, err := ParseSignatureFromFile(signatureFile)
+	r, s, err := ParseSignature(sign)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	if dsa.Verify(pub, hash, r, s) {
-		return []byte("Verified OK\n"), nil
+		return true, nil
 	} else {
-		return nil, errors.New("Verification Failure")
+		return false, errors.New("Verification Failure")
 	}
 }
