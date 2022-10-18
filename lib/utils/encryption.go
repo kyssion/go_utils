@@ -1,8 +1,6 @@
 package util
 
 import (
-	"code.byted.org/ad/gromore/lib/utils/enhancelog"
-
 	"crypto/sha1"
 	"fmt"
 	"reflect"

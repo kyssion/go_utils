@@ -2,10 +2,16 @@ package util
 
 import (
 	"time"
-
-	"code.byted.org/ad/gromore/lib/consts"
 )
 
+// 时间格式
+const (
+	DateFormat              = "2006-01-02"
+	HourDateFormat          = "2006-01-02 15"
+	TimeFormatISO           = "2006-01-02 15:04:05"
+	HivePartitionDateFormat = "20060102"
+	Month2MinuteFormat      = "01_02_15:04"
+)
 const DateTemplateOfYearMonthDay = "2006-01-02"
 
 func GetUnixMill() int64 {
@@ -38,15 +44,15 @@ func (c *CustomTimer) GetNow() time.Time {
 }
 
 func GetToday() string {
-	return CustomTimerIns.GetNow().Format(consts.DateFormat)
+	return CustomTimerIns.GetNow().Format(DateFormat)
 }
 
 func GetYestoday() string {
-	return CustomTimerIns.GetNow().AddDate(0, 0, -1).Format(consts.DateFormat)
+	return CustomTimerIns.GetNow().AddDate(0, 0, -1).Format(DateFormat)
 }
 
 func GetSevenDaysAgo() string {
-	return CustomTimerIns.GetNow().AddDate(0, 0, -7).Format(consts.DateFormat)
+	return CustomTimerIns.GetNow().AddDate(0, 0, -7).Format(DateFormat)
 }
 
 func NewCustomTimerMock(timeStr string) ICustomTimer {
