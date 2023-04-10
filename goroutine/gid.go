@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// GetGIDWithStack 在上下文中获取GID
 func GetGIDWithStack() int {
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
